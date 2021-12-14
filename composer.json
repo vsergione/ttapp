@@ -1,0 +1,9 @@
+{
+    "require": {
+        "fortawesome/font-awesome": "^5.15",
+        "twbs/bootstrap": "^5.1",
+        "moment/moment": "^2.29",
+        "components/underscore": "^1.8",
+        "components/jquery": "^3.6"
+    }
+}

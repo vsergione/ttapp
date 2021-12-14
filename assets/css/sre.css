@@ -1,0 +1,52 @@
+
+@font-face {
+    font-family: 'Poppins';
+    font-display: fallback;
+    src: url("../../assets/fonts/Poppins-Light.ttf") ;
+}
+
+body {
+    font-size: 0.9rem;
+    font-family: 'Poppins', Serif;
+}
+.card-header{
+    display: flex;
+    align-items: center;
+}
+.card-header>*{
+    display: flex;
+
+}
+.card-header .nav {
+    display: flex;
+    width: auto;
+    margin-left: auto;
+}
+
+.modal-header{
+    display: flex;
+    align-items: center;
+}
+.modal-header>*{
+    display: flex;
+}
+.modal-title{
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.nav-pills{
+    font-weight: bold;
+}
+
+.checkRead.readAllow {
+    display: block;
+}
+.checkCreate.createAllow {
+    display: block;
+}
+.checkUpdate.updateAllow {
+    display: block;
+}
+.checkDelete.deleteAllow {
+    display: block;
+}

@@ -85,7 +85,7 @@
         }
         #reportsMenu{
             /*background: rgba(228,228,228,1);*/
-            background: linear-gradient(0deg, rgba(163,163,163,1) 32%, rgba(228,228,228,1)    90%);
+            background: linear-gradient(0deg, rgb(176, 184, 191) 32%, rgb(255, 255, 255) 90%);
 
         }
         #reportsMenu button{
@@ -93,7 +93,7 @@
         }
         #reportsMenu .active{
 
-            /*background: #eaffe2;*/
+            background: #B0B8BF;
         }
         #reportsMenu button{
             font-size: 1.1em;
@@ -127,7 +127,7 @@
 </div>
 
 <div class="m-0 p-0" style="height: 100%;position: absolute; width: 100%">
-    <h4 style="position: absolute; top: 0;left: 0;z-index: 100;width: 100%" class="bg-dark p-2">ClockWorx</h4>
+<!--    <h4 style="position: absolute; top: 0;left: 0;z-index: 100;width: 100%" class="bg-dark p-2">ClockWorx</h4>-->
     <div id="login" class="overlay" style="z-index: 10">
         <div class="vertical-center text-center">
             <div style="width: 70%; display: inline-block">
@@ -148,15 +148,18 @@
             </div>
         </div>
     </div>
-    <div id="pontaj" style="display: none; margin-top: 50px">
-        <div >
+    <div id="pontaj" style="display: none;">
+        <div>
             <div id="home" class="panel vertical-center">
                 <div id="projectSelect" style="display: none" class="unit text-center">
+                    <h4 class="mb-3">
+                        Salut <span id="userFullName">Fname Lname</span>
+                    </h4>
                     <form onsubmit="event.preventDefault();startWork();">
                         <select name="project">
                             <option value="<%= id %>"><%= attributes.order_name ? attributes.order_name : "fara nume" %> <%= attributes.op_name ? "/ "+attributes.op_name : "fara nume" %></option>
                         </select>
-                        <button class="btn btn-success" id="startClockingButton" disabled><i class="fa fa-clock"></i> Incepe pontarea</button>
+                        <button class="btn btn-success" id="startClockingButton"><i class="fa fa-clock"></i> Incepe pontarea</button>
                     </form>
                 </div>
                 <div id="working" style="display: none" class="unit text-center">
@@ -209,22 +212,22 @@
             </div>
 
             <div class="row" id="mainmenu">
-                <div class="col-3 p-1 menuitem active border-right" style="text-align: center">
+                <div class="col-4 p-1 menuitem active border-right" style="text-align: center">
                     <button type="button" class="btn" data-target="#home" onclick="toggleTab(this)" data-menu="#mainmenu">
                         <i class="fa fa-home"></i><br>Home
                     </button>
                 </div>
-                <div class="col-3 p-1 menuitem border-right" style="text-align: center">
+                <div class="col-4 p-1 menuitem border-right" style="text-align: center">
                     <button type="button" class="btn" data-target="#reports" onclick="toggleTab(this)"  data-menu="#mainmenu">
                         <i class="fa fa-table"></i><br>Rapoarte
                     </button>
                 </div>
-                <div class="col-3 p-1 menuitem border-right" style="text-align: center">
-                    <button type="button" class="btn" data-toggle="modal" data-target="#dbgModal">
-                        <i class="fa fa-terminal"></i><br>DBG
-                    </button>
-                </div>
-                <div class="col-3 p-1 menuitem" style="text-align: center">
+<!--                <div class="col-3 p-1 menuitem border-right d-none" style="text-align: center">-->
+<!--                    <button type="button" class="btn" data-toggle="modal" data-target="#dbgModal">-->
+<!--                        <i class="fa fa-terminal"></i><br>DBG-->
+<!--                    </button>-->
+<!--                </div>-->
+                <div class="col-4 p-1 menuitem" style="text-align: center">
                     <button type="button" class="btn" onclick="backToLogin()">
                         <i class="fa fa-sign-out-alt"></i><br>Logout
                     </button>
@@ -240,9 +243,8 @@
     <div class="container p-2 text-center">
         <div id="stopOk" style="display: none" class="unit text-center">
             <p>
-                Pontajul a fost oprit.
-            </p>
-            <p>
+                Pontajul a fost oprit.<br><br>
+
                 Ai lucrat in total <span class="durationh"></span> ore si <span class="durationm"></span> minute
             </p>
             <!--        <button class="btn btn-secondary" onclick="checkuser()">OK</button>-->
@@ -667,6 +669,7 @@
                 $('#loggedInNavBarBottom').show();
                 let usrTT = $("<span>").apiator({type: "timetracking",resourcetype: "collection",returninstance:true})
                     .setUrl(apiRoot+"/employees/"+data.relationships.emplid.id+"/timetracking");
+
                 usrTT.loadFromRemote().then(function (data) {
                     grps = [];
                     grpsHash = {};
@@ -750,7 +753,7 @@
                 }
 
                 let projView = $("#projectSelect");
-                projView.find("h3").html(data.attributes.fname + " " + data.attributes.lname);
+                projView.find("#userFullName").html(data.attributes.fname + " " + data.attributes.lname);
                 let instance = projView.fadeIn().find("select").apiator({returninstance: true,resourcetype: "collection"});
 
                 let projects = [

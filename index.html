@@ -125,7 +125,11 @@
         Obtine pozitia GPS
     </div>
 </div>
-
+<div id="unknownErr" style="display: none" class="overlay">
+    <div class="vertical-center text-center h3">
+        eroare necunoscuta
+    </div>
+</div>
 <div class="m-0 p-0" style="height: 100%;position: absolute; width: 100%">
 <!--    <h4 style="position: absolute; top: 0;left: 0;z-index: 100;width: 100%" class="bg-dark p-2">ClockWorx</h4>-->
     <div id="login" class="overlay" style="z-index: 10">
@@ -138,9 +142,6 @@
                 </form>
                 <div id="invalidUserId" style="display: none" class="alert alert-danger">
                     Utilizatorul nu este valid
-                </div>
-                <div id="unknownErr" style="display: none" class="alert alert-danger">
-                    Eroare necunoscuta
                 </div>
                 <div id="invalidCode" style="display: none" class="alert alert-danger">
                     Codul introdus este invalid
@@ -254,9 +255,6 @@
         </div>
         <div id="serviceUnavail" style="display: none" class="unit text-center">
             Serviciul este indisponibil
-        </div>
-        <div id="unknowError" style="display: none" class="unit text-center">
-            Eroare necunoscuta
         </div>
     </div>
 
@@ -608,6 +606,7 @@
     }
 
     function startWork() {
+        console.log("Start work");
         if(navigator)
             $("#loader").show();
 
@@ -637,7 +636,12 @@
                 checkuser();
             })
             .catch(function (xhr) {
-                $("#unknownErr").text(JSON.stringify(xhr)).fadeIn();
+                let err = xhr.jqXHR.responseJSON.errors[0]
+                console.log(err);
+                let errMsg = $("#unknownErr").show();
+                errMsg.children().text(err.title.split("\n")[0]);
+                $("#loader").hide();
+                setTimeout(()=>errMsg.hide(200),2000);
             });
 
     }

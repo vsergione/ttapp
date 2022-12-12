@@ -314,7 +314,7 @@
                 resolve(data);
             })
             .fail(function (data) {
-                reject(data);
+                reject(["could not load envFile",data]);
             })
     );
     let p2 = new Promise((resolve,reject)=>
@@ -323,7 +323,7 @@
                 resolve(data);
             })
             .fail(function (data) {
-                reject(data);
+                reject(["could not load activeEnv",data]);
             })
     );
 

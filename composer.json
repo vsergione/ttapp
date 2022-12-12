@@ -5,5 +5,11 @@
         "moment/moment": "^2.29",
         "components/underscore": "^1.8",
         "components/jquery": "^3.6"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "oomphinc/composer-installers-extender": true
+        }
     }
 }

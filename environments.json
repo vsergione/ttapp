@@ -4,8 +4,7 @@
     "beDBapiUrl": "https://dbapi01.softaccel.net/apis/ezerpsg/data"
   },
   "spalecknet": {
-    "feDBapiUrl":"https://192.168.10.160/dbapi/apis/spaleck/data",
-    "beDBapiUrl": "https://192.168.10.160/dbapi/apis/spaleck/data"
+    "feDBapiUrl":"/splkdbapi/spaleck/data",
+    "beDBapiUrl": "/splkdbapi/spaleck/data"
   }
-  
 }

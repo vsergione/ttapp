@@ -11,7 +11,7 @@
     <title>Pontaj</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="msapplication-tap-highlight" content="no">
-    <link rel="manifest" href="ttapp.webmanifest">
+    <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css">
@@ -106,6 +106,12 @@
             font-weight: bold;
             text-shadow: 2px 2px #cccccc;;
         }
+        #keyboard button{
+            font-family: monospace;
+            font-size: 25px;
+            width: 80px;
+            height: 50px;
+        }
     </style>
 </head>
 <body>
@@ -132,18 +138,52 @@
         eroare necunoscuta
     </div>
 </div>
-<div class="m-0 p-0" style="height: 100%;position: absolute; width: 100%">
+<div class="m-0 p-0" style="height: 100%;  text-align: center">
 <!--    <h4 style="position: absolute; top: 0;left: 0;z-index: 100;width: 100%" class="bg-dark p-2">ClockWorx</h4>-->
-    <div id="login" class="overlay" style="z-index: 10">
-        <div class="vertical-center text-center">
-            <div style="width: 70%; display: inline-block">
+    <div id="login" style="z-index: 10; display: inline-block; width: 500px;">
+        <div class="text-center mt-2">
+            <div style="text-align: center;">
+                <div style="display: inline-block; width:70%">
+                    <div id="reader" width="400px" style="width: 100%; display: inline-block"></div>
+                </div>
+                <form id="lookupform" onsubmit="event.preventDefault();checkuser(this.uid.value);" class="mt-2">
+                    <div class="input-group">
+                        <input type="number"  name="uid" required class="form-control" placeholder="PIN" title="Introdu codul PIN" oninvalid="this.setCustomValidity('Introdu codul PIN')"
+                        oninput="this.setCustomValidity('')">
+                        <input type="checkbox" id="toggleKeyboadChkbox" class="btn-check" autocomplete="off" onclick="toggleKeyboard(this)">
+                        <label class="btn btn-outline-secondary" for="toggleKeyboadChkbox">Tastatura</label><br>
+                        <button class="btn btn-primary" type="submit" >Login</button>
+                    </div>
 
-                <h4>Login</h4>
-                <div id="reader" width="600px" style="width: 100%;"></div>
-                <form id="lookupform" onsubmit="userId=this.form.uid.value;checkuser()">
-                    <input type="number" name="uid" value="" required class="form-control" placeholder="PIN" onkeyup="">
-                    <button type="button" id="submButt" class="mt-1 btn btn-primary form-control" onclick="userId=this.form.uid.value;checkuser()">Verifica stare</button>
                 </form>
+                <div class="text-center">
+                    <div class="d-inline text-center">
+                        <table id="keyboard" style="display: none;">
+                            <tr>
+                                <td><button type="button">1</button></td>
+                                <td><button type="button">2</button></td>
+                                <td><button type="button">3</button></td>
+                            </tr>
+                            <tr>
+                                <td><button type="button">4</button></td>
+                                <td><button type="button">5</button></td>
+                                <td><button type="button">6</button></td>
+                            </tr>
+                            <tr>
+                                <td><button type="button">7</button></td>
+                                <td><button type="button">8</button></td>
+                                <td><button type="button">9</button></td>
+                            </tr>
+                            <tr>
+                                <td><button type="button">CLR</button></td>
+                                <td><button type="button">0</button></td>
+                                <td><button type="button">DEL</button></td>
+                            </tr>
+                        </table>
+                        <div style="height: 70px;"></div>
+                    </div>
+                </div>
+                
                 <div id="invalidUserId" style="display: none" class="alert alert-danger">
                     Utilizatorul nu este valid
                 </div>
@@ -153,19 +193,36 @@
             </div>
         </div>
     </div>
+
     <div id="pontaj" style="display: none;">
         <div>
-            <div id="home" class="panel vertical-center">
+            <div id="home" class="panel">
                 <div id="projectSelect" style="display: none" class="unit text-center">
-                    <h4 class="mb-3">
+                    <h4 class="m-3">
                         Salut <span id="userFullName">Fname Lname</span>
                     </h4>
-                    <form onsubmit="event.preventDefault();startWork();">
-                        <select name="project">
-                            <option value="<%= id %>"><%= attributes.order_name ? attributes.order_name : "fara nume" %> <%= attributes.op_name ? "/ "+attributes.op_name : "fara nume" %></option>
-                        </select>
-                        <button class="btn btn-success" id="startClockingButton"><i class="fa fa-clock"></i> Incepe pontarea</button>
-                    </form>
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn btn-danger" style="width: 150px; height: 50px;" onclick="logout()">Renunta</button>
+                        </div>
+                    </div>
+                    <div class="card m-3">
+                        <div class="card-header">Proiecte alocate</div>
+                        <div class="card-body" style="max-height: 80%; overflow-x: scroll">
+                            <span class="badgde rounded-pill text-bg-primary ps-3 pe-3">
+                                Da click pt. a incepe pontajul
+                            </div>
+                            <div class="projects">
+                                <div class="d-inline-block m-3">
+                                    <% bgColor = ("0"+(Math.round(Math.random() * 0x7777)).toString(16) + "0").padStart(6,"0")  %> 
+                                    <button onclick="confirmStartWork(this)" class="btn" style="width: 150px; font-weight: bold; background-color: #<%=bgColor%>; color: white;  text-shadow: 1px 1px 2px #000000;"
+                                        data-id="<%= id %>"><strong><%= attributes.order_name ? attributes.order_name : "fara nume" %></strong><br>
+                                        <%= attributes.op_name ? attributes.op_name : "fara nume" %></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
                 <div id="working" style="display: none" class="unit text-center">
                     <h2 class="emplName"></h2>
@@ -175,76 +232,7 @@
                     <button onclick="stopWork(this);" class="btn btn-danger" id="stopClockingButton">Opreste lucru</button>
                 </div>
             </div>
-            <div id="reports" class="panel" style="display: none"  data-connected="#reportsMenu">
-                <div id="registru" class="p-2" style="max-height: 70%; overflow: scroll">
-
-                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                        <i class="fa fa-calendar"></i>&nbsp;
-                        <span></span> <i class="fa fa-caret-down"></i>
-                    </div>
-
-                    <div id="ttregistry" data-resourcetype="collection" data-type="timetracking">
-                        <div class="card mb-2 shadow-sm bg-light">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span class="flex-grow-1"><%=id%></span>
-                                <span>
-                                    <%= attributes.duration.hours()+':'+ attributes.duration.minutes().toString().padStart(2,'0') %>
-                                </span>
-                            </div>
-                            <div class="card-body p-1">
-                                <% console.log(relationships.slots) %>
-                                <% for(let tt of relationships.slots.data) { %>
-                                <div class="alert alert-secondary m-1 p-1 d-flex">
-                                    <span class="flex-grow-1"><%=tt.attributes.start.format("hh:mm")%> - <%=tt.attributes.stop ? tt.attributes.stop.format("hh:mm") : '' %></span>
-                                    <strong>Durata: <%=tt.attributes.stop ? tt.attributes.duration.hours()+':'+ tt.attributes.duration.minutes().toString().padStart(2,'0') : '-' %></strong>
-                                </div>
-                                <% } %>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="lunar" style="display: none">Lunar</div>
-            </div>
         </div>
-
-        <nav class="fixed-bottom " id="loggedInNavBarBottom">
-
-            <div class="row border-top" id="reportsMenu" style="display: none">
-                <div class="col-3 p-1 menuitem active" style="text-align: center" >
-                    <button type="button" class="btn" data-target="#registru" onclick="toggleTab(this)" data-menu="#reportsMenu">
-                        <i class="fa fa-calendar-day"></i><br>Registru
-                    </button>
-                </div>
-                <div class="col-3 p-1 menuitem " style="text-align: center">
-                    <button type="button" class="btn" data-target="#lunar" onclick="toggleTab(this)" data-menu="#reportsMenu">
-                        <i class="fa fa-cubes"></i><br>Sumar
-                    </button>
-                </div>
-            </div>
-
-            <div class="row" id="mainmenu">
-                <div class="col-4 p-1 menuitem active border-right" style="text-align: center">
-                    <button type="button" class="btn" data-target="#home" onclick="toggleTab(this)" data-menu="#mainmenu">
-                        <i class="fa fa-home"></i><br>Home
-                    </button>
-                </div>
-                <div class="col-4 p-1 menuitem border-right" style="text-align: center">
-                    <button type="button" class="btn" data-target="#reports" onclick="toggleTab(this)"  data-menu="#mainmenu">
-                        <i class="fa fa-table"></i><br>Rapoarte
-                    </button>
-                </div>
-<!--                <div class="col-3 p-1 menuitem border-right d-none" style="text-align: center">-->
-<!--                    <button type="button" class="btn" data-toggle="modal" data-target="#dbgModal">-->
-<!--                        <i class="fa fa-terminal"></i><br>DBG-->
-<!--                    </button>-->
-<!--                </div>-->
-                <div class="col-4 p-1 menuitem" style="text-align: center">
-                    <button type="button" class="btn" onclick="backToLogin()">
-                        <i class="fa fa-sign-out-alt"></i><br>Logout
-                    </button>
-                </div>
-            </div>
-        </nav>
     </div>
 </div>
 
@@ -258,7 +246,6 @@
 
                 Ai lucrat in total <span class="durationh"></span> ore si <span class="durationm"></span> minute
             </p>
-            <!--        <button class="btn btn-secondary" onclick="checkuser()">OK</button>-->
         </div>
         <div id="severError" style="display: none" class="unit text-center">
             Eroare pe server
@@ -306,7 +293,6 @@
 <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="node_modules/underscore/underscore-min.js"></script>
 <script src="node_modules/moment/min/moment.min.js"></script>
-<script src="node_modules/daterangepicker/daterangepicker.js"></script>
 <!--<script src="node_modules/font-awesome/"-->
 <!--<script src="vendor/fortawesome/font-awesome/js/all.min.js"></script>-->
 <script src="assets/js/apiator.js"></script>
@@ -316,6 +302,26 @@
 <script>
     
 </script>
-
+<div class="modal" id="startWorkConfirm">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">Esti sigur ca vrei sa incepi pontajul la<br><span name="proiectId"></span></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$(this).parents('.modal').modal('hide')">NU</button>
+                <button type="button" name="confirmButton" class="btn btn-primary">DA</button>
+            </div>
+        </div>
+    </div>
+</div>
+<nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Pontaj</a>
+        <div class="d-inline-block">
+            <button onclick="window.location.reload()">Reporneste aplicatia</button>
+            <button onclick="window.close()">Inchide aplicatia</button>
+        </div>
+        
+    </div>
+</nav>
 </body>
 </html>

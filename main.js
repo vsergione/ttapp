@@ -139,6 +139,7 @@ var userId = null;
 var geoLocation = null;
 var saveUserId;
 var logoutUserId;
+var logout;
 
 function toggleTab(src) {
     let $src = $(src);
@@ -176,8 +177,8 @@ function stopWork() {
             $("#stopOk .durationm").text(Math.floor(data.attributes.duration%60));
             setTimeout(function () {
                 $("#stopOk").fadeOut();
-                checkuser();
-            },3000);
+                logout();
+            },1500);
         })
 }
 
@@ -309,12 +310,20 @@ function deg2rad(deg) {
     return deg * (Math.PI/180);
 }
 
-function startWork() {
+function confirmStartWork(button) {
+
+    let instance = $(button).data().instance;
+    let modal = $("#startWorkConfirm").modal("show");
+    modal.find("[name=proiectId]").text(instance.attributes.order_name+" / " + instance.attributes.op_name);
+    modal.find("[name=confirmButton]").on("click",()=>{modal.modal("hide");startWork(button);});
+}
+
+function startWork(button) {
     console.log("Start work");
     if(navigator)
         $("#loader").show();
 
-    let sel = $("#projectSelect form").find("option:selected").data().instance;
+    let sel = $(button).data().instance;
     let data = {
         employee: current_ttregistry.relationships.emplid.id,
     };
@@ -336,8 +345,9 @@ function startWork() {
         .setUrl(apiUrl+"/timetracking")
         .append(data)
         .then(function () {
+            $("#loader").hide();
             $("#projectSelect").fadeOut();
-            checkuser();
+            logout();
         })
         .catch(function (xhr) {
             let err = xhr.jqXHR.responseJSON.errors[0]
@@ -345,15 +355,22 @@ function startWork() {
             let errMsg = $("#unknownErr").show();
             errMsg.children().text(err.title.split("\n")[0]);
             $("#loader").hide();
-            setTimeout(()=>errMsg.hide(200),2000);
+            setTimeout(()=>errMsg.hide(200),1500);
         });
 }
 
 function backToLogin() {
-    logoutUserId();
+    if($("#toggleKeyboadChkbox")[0].checked) {
+        $("#toggleKeyboadChkbox")[0].checked = !$("#toggleKeyboadChkbox")[0].checked;
+        toggleKeyboard($("#toggleKeyboadChkbox"));
+    }
+    $("#lookupform")[0].uid.value = "";
+
     $('#loggedInNavBarBottom').hide();
     $('.overlay').hide();
     $('#login').show();
+    $('#pontaj').hide();
+    startCodeScanner();
 }
 
 function loadUserTTRegistryEntries() {
@@ -409,30 +426,25 @@ function loadUserTTRegistryEntries() {
     });
 }
 
-function checkuser() {
-    if(typeof userId==="undefined" || userId==="" || userId===null) {
-        backToLogin();
-        return;
-    }
+function checkuser(userId) {
 
     console.log("userid.....",userId);
 
+    stopCodeScanner();
     $(".overlay").hide();
+    $("#login").hide();
     $("#loader").show();
 
     $("<span>").apiator({returninstance: true,resourcetype: "item"})
         .setUrl(apiUrl+"/tags_v2/"+userId+"?include=started_work,emplid,alloc_orders")
         .loadFromRemote()
         .then(function (data) {
-            console.log("User logged in")
-            stopCodeScanner();
             localStorage.setItem("emplId",data.relationships.emplid.id)
-            console.log(data);
             $(".overlay").hide();
+            $("#loader").hide();
             $("#pontaj").show();
-            $('#loggedInNavBarBottom').show();
 
-            loadUserTTRegistryEntries();
+            // loadUserTTRegistryEntries();
 
             saveUserId(userId);
 
@@ -458,7 +470,7 @@ function checkuser() {
                     let hours = Math.floor(minutes/60);
                     minutes = minutes%60;
 
-                    let elapsed = ("0" + hours).slice(-2) + ":"+("0" + minutes).slice(-2) + ":"+("0" + seconds).slice(-2);
+                    let elapsed = hours.toString().padStart(2,"0") + ":"+minutes.toString().padStart(2,"0") + ":"+seconds.toString().padStart(2,"0");
                     cont.find(".elapsedTime").html(elapsed);
 
                     if(showKontor) {
@@ -471,22 +483,9 @@ function checkuser() {
 
             let projView = $("#projectSelect");
             projView.find("#userFullName").html(data.attributes.fname + " " + data.attributes.lname);
-            let instance = projView.fadeIn().find("select").apiator({returninstance: true,resourcetype: "collection"});
+            let instance = projView.fadeIn().find(".projects").apiator({returninstance: true,resourcetype: "collection"});
 
-            let projects = [
-                {
-                    id: null,
-                    attributes:{
-                        op_id: null,
-                        op_name: null,
-                        order_id: null,
-                        order_name: null,
-                        hourly_rate: null,
-                        currency: null
-                    }
-                },
-                ...data.relationships.alloc_orders
-            ];
+            let projects = data.relationships.alloc_orders;
 
             instance.loadFromData(projects);
             if(projects.length<2) {
@@ -495,7 +494,7 @@ function checkuser() {
         })
         .catch(function (xhr) {
             console.log(xhr)
-            logoutUserId();
+            logout();
             backToLogin();
             console.log("XHRS",xhr);
             let cb,alert;
@@ -516,19 +515,20 @@ function checkuser() {
                     alert = $("#unknowError").show();
                     cb = ()=>alert.fadeOut();
             }
-            setTimeout(cb,2000);
+            setTimeout(cb,1500);
         });
 }
 
 
 function logoutAsApp() {
+    backToLogin();
     console.log("logout")
     userId = null;
     localStorage.removeItem("userId");
 }
 
 function logoutAsExtension() {
-
+    backToLogin();
 }
 
 function saveUserIdAsExtension(userId) {
@@ -539,33 +539,35 @@ function saveUserIdAsApp(userId) {
     localStorage.setItem("userId",userId);
 }
 
-window.addEventListener('message', function(event) {
-    if(typeof event.data.command==="undefined") {
-        return;
-    }
+// window.addEventListener('message', function(event) {
+//     if(typeof event.data.command==="undefined") {
+//         return;
+//     }
 
-    switch (event.data.command) {
-        case "sync":
-            console.log(event.data);
-            userId = event.data.data.userId ?? null;
-            geoLocation = event.data.data.geoLocation ?? null;
-            checkuser();
-            break;
-        case "reload":
-            window.location.reload();
-            break;
-    }
-});
+//     switch (event.data.command) {
+//         case "sync":
+//             console.log(event.data);
+//             userId = event.data.data.userId ?? null;
+//             geoLocation = event.data.data.geoLocation ?? null;
+//             checkuser();
+//             break;
+//         case "reload":
+//             window.location.reload();
+//             break;
+//     }
+// });
 
 
 function init() {
     // navigator.permissions.query({name:'geolocation'}).then((permission)=>{$("#pos").text(permission.state);
     //     console.log("perm",permission)})
+    console.log("inint")
     wd--;
     if(wd<=0) {
         alert("eroare in incarca setarile.");
         return;
     }
+    console.log("inint",wd)
 
     if(typeof apiRoot==="undefined") {
         setTimeout(init,1000);
@@ -574,22 +576,11 @@ function init() {
 
     apiUrl = apiRoot;
 
+    console.log("inint",wd,apiUrl)
 
-    if(parent===window) {
-        console.log("parent is window");
-        saveUserId = saveUserIdAsApp;
-        logoutUserId = logoutAsApp;
-        userId = localStorage.getItem("userId");
-        checkuser();
-        // getLocation();
-        return;
-    }
-    else {
-        $("#loader").show();
-        parent.postMessage({command:"get",data:{userId:null,geoLocation:null}},"*");
-        saveUserId = saveUserIdAsExtension;
-        logoutUserId = logoutAsExtension;
-    }
+    saveUserId = saveUserIdAsApp;
+    logout = logoutAsApp;
+   
 }
 
 init();
@@ -603,18 +594,18 @@ $(function() {
         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
     }
 
-    $('#reportrange').daterangepicker({
-        startDate: start,
-        endDate: end,
-        ranges: {
-            'Today': [moment(), moment()],
-            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-            'This Month': [moment().startOf('month'), moment().endOf('month')],
-            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        }
-    }, cb);
+    // $('#reportrange').daterangepicker({
+    //     startDate: start,
+    //     endDate: end,
+    //     ranges: {
+    //         'Today': [moment(), moment()],
+    //         'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    //         'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    //         'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    //         'This Month': [moment().startOf('month'), moment().endOf('month')],
+    //         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+    //     }
+    // }, cb);
 
     cb(start, end);
 
@@ -624,9 +615,10 @@ $(function() {
 const html5QrCode = new Html5Qrcode("reader");
 const qrCodeSuccessCallback = (decodedText, decodedResult) => {
     userId=decodedText;
-    checkuser()
+    console.log(userId);
+    checkuser(userId);
 };
-const config = { fps: 10, qrbox: { width: 600 , height: 600 } };
+const config = { fps: 10, qrbox: { width: 300 , height: 300 } };
 
 function startCodeScanner() {
     // If you want to prefer back camera
@@ -637,3 +629,96 @@ function stopCodeScanner() {
 }
 startCodeScanner();
 
+
+
+function invertColor(hex) {
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    // convert 3-digit hex to 6-digits.
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+    }
+    // invert color components
+    var r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16),
+        g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16),
+        b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16);
+    // pad each with zeros and return
+    return padZero(r) + padZero(g) + padZero(b);
+}
+
+function padZero(str, len) {
+    len = len || 2;
+    var zeros = new Array(len).join('0');
+    return (zeros + str).slice(-len);
+}
+
+$("#keyboard").find("button").on("click",function(event){
+    let val = $(event.target).text();
+    let input = $("#lookupform")[0].uid;
+    switch(val) {
+        case "DEL":
+            input.value = input.value.substring(0,input.value.length-1)
+            break;
+        case "CLR":
+            input.value = ""
+            break;
+        default:
+            input.value += val
+    }
+})
+
+var mobileCheck = function() {
+    let check = false;
+    (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
+    return check;
+};
+
+if(mobileCheck()) {
+    $("#lookupform")[0].uid.disabled = true;
+}
+
+function toggleKeyboard(chkbox) {
+    console.log("tottle");
+    if(chkbox.checked) {
+        $('#keyboard').show();
+        window.scrollTo(0, document.body.scrollHeight+100);
+    }
+    else {
+        $('#keyboard').hide()
+    }
+}
+
+
+window.addEventListener('beforeinstallprompt', (event) => {
+    // Prevent the mini-infobar from appearing on mobile.
+    event.preventDefault();
+    console.log('👍', 'beforeinstallprompt', event);
+    // Stash the event so it can be triggered later.
+    window.deferredPrompt = event;
+    // Remove the 'hidden' class from the install button container.
+    divInstall.classList.toggle('hidden', false);
+});
+
+
+butInstall.addEventListener('click', async () => {
+    console.log('👍', 'butInstall-clicked');
+    const promptEvent = window.deferredPrompt;
+    if (!promptEvent) {
+        // The deferred prompt isn't available.
+        return;
+    }
+    // Show the install prompt.
+    promptEvent.prompt();
+    // Log the result
+    const result = await promptEvent.userChoice;
+    console.log('👍', 'userChoice', result);
+    // Reset the deferred prompt variable, since
+    // prompt() can only be called once.
+    window.deferredPrompt = null;
+    // Hide the install button.
+    divInstall.classList.toggle('hidden', true);
+});

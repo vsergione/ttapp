@@ -1,1 +1,11 @@
-../spaleck/environments.json
+{
+  "alllocal": {
+    "feDBapiUrl":"https://dbapi01.softaccel.net/apis/ezerpsg/data",
+    "beDBapiUrl": "https://dbapi01.softaccel.net/apis/ezerpsg/data"
+  },
+  "spalecknet": {
+    "feDBapiUrl":"https://192.168.10.160/dbapi/apis/spaleck/data",
+    "beDBapiUrl": "https://192.168.10.160/dbapi/apis/spaleck/data"
+  }
+  
+}

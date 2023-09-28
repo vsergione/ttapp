@@ -685,7 +685,7 @@ function toggleKeyboard(chkbox) {
     console.log("tottle");
     if(chkbox.checked) {
         $('#keyboard').show();
-        window.scrollTo(0, document.body.scrollHeight+100);
+        window.scrollTo(0, document.body.scrollHeight+500);
     }
     else {
         $('#keyboard').hide()

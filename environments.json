@@ -1,9 +1,13 @@
 {
-  "alllocal": {
+  "dbapisoftaccel": {
     "feDBapiUrl":"https://dbapi01.softaccel.net/apis/ezerpsg/data",
     "beDBapiUrl": "https://dbapi01.softaccel.net/apis/ezerpsg/data"
   },
-  "spalecknet": {
+  "relativepaths": {
+    "feDBapiUrl":"/dbapi/apis/spaleck/data",
+    "beDBapiUrl": "/dbapi/apis/spaleck/data"
+  },
+  "spalecknetthroughproxy": {
     "feDBapiUrl":"/splkdbapi/spaleck/data",
     "beDBapiUrl": "/splkdbapi/spaleck/data"
   }

@@ -173,14 +173,13 @@ function stopWork() {
     inst.id = ttid;
     inst.update({status:"f"})
         .then(function (data) {
-
             $("#loader").hide();
-            $("#working").hide();
+            $userArea.removeClass("working").hide();
             $("#stopOk").show();
             $("#stopOk .durationh").text(Math.floor(data.attributes.duration/60));
             $("#stopOk .durationm").text(Math.floor(data.attributes.duration%60));
-            setTimeout(function () {
-                $("#stopOk").fadeOut();
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
                 logout();
             },1500);
         })
@@ -319,7 +318,7 @@ function confirmStartWork(button) {
     let instance = $(button).data().instance;
     let modal = $("#startWorkConfirm").modal("show");
     modal.find("[name=proiectId]").text(instance.attributes.order_name+" / " + instance.attributes.op_name);
-    modal.find("[name=confirmButton]").on("click",()=>{modal.modal("hide");startWork(button);});
+    modal.find("[name=confirmButton]").off("click").on("click",()=>{modal.modal("hide");startWork(button);});
 }
 
 function startWork(button) {
@@ -350,7 +349,6 @@ function startWork(button) {
         .append(data)
         .then(function () {
             $("#loader").hide();
-            $("#projectSelect").fadeOut();
             logout();
         })
         .catch(function (xhr) {
@@ -373,7 +371,7 @@ function backToLogin() {
     $('#loggedInNavBarBottom').hide();
     $('.overlay').hide();
     $('#login').show();
-    $('#pontaj').hide();
+    $userArea.hide();
     startCodeScanner();
 }
 
@@ -429,10 +427,11 @@ function loadUserTTRegistryEntries() {
 
     });
 }
-
+var timeout;
+var $projView = $("#projectSelect");
+var $workingView = $("#working");
+var $userArea = $('#userArea');
 function checkuser(userId) {
-
-    console.log("userid.....",userId);
 
     stopCodeScanner();
     $(".overlay").hide();
@@ -446,7 +445,7 @@ function checkuser(userId) {
             localStorage.setItem("emplId",data.relationships.emplid.id)
             $(".overlay").hide();
             $("#loader").hide();
-            $("#pontaj").show();
+            $("#userArea").removeClass("working").show();
 
             // loadUserTTRegistryEntries();
 
@@ -454,8 +453,14 @@ function checkuser(userId) {
 
             current_ttregistry = data;
 
+            // show user name
+            $("#userFullName").html(data.attributes.fname + " " + data.attributes.lname);
+            // set auto-logout
+            //timeout = window.setTimeout(logout,10000);
+
             if(data.relationships.started_work.length) {
-                let cont = $("#working").fadeIn();
+                $userArea.addClass("working");
+                let cont = $workingView;
                 if(data.relationships.started_work[0].attributes.order_label) {
                     cont.find(".project").html(data.relationships.started_work[0].attributes.order_label);
                 }
@@ -465,7 +470,7 @@ function checkuser(userId) {
 
                 showKontor = true;
 
-                cont.find(".emplName").text(data.attributes.fname+" "+data.attributes.lname);
+                //cont.find(".emplName").text(data.attributes.fname+" "+data.attributes.lname);
 
                 function showTime() {
                     let dateDiffSeconds = Math.round(((new Date()).getTime()-(new Date(data.relationships.started_work[0].attributes.start)).getTime())/1000);
@@ -485,20 +490,18 @@ function checkuser(userId) {
                 return;
             }
 
-            let projView = $("#projectSelect");
-            $("#userFullName").html(data.attributes.fname + " " + data.attributes.lname);
-            let instance = projView.fadeIn().find(".projects").apiator({returninstance: true,resourcetype: "collection"});
+
+            let instance = $projView.find(".projects").apiator({returninstance: true,resourcetype: "collection"});
 
             let projects = data.relationships.alloc_orders;
 
             instance.loadFromData(projects)
-            window.setTimeout(logout,5000);
             if(projects.length<2) {
-                $("#projectSelect").find("select").hide();
+                $projView.find("select").hide();
             }
         })
         .catch(function (xhr) {
-            console.log(xhr)
+            console.log(xhr);
             logout();
             backToLogin();
             console.log("XHRS",xhr);
@@ -529,6 +532,7 @@ function logoutAsApp() {
     backToLogin();
     console.log("logout")
     userId = null;
+    showKontor = false;
     localStorage.removeItem("userId");
 }
 
@@ -695,7 +699,7 @@ var mobileCheck = function() {
 };
 
 if(mobileCheck()) {
-    $("#lookupform")[0].uid.disabled = true;
+    //$("#lookupform")[0].uid.disabled = true;
 }
 
 function toggleKeyboard(chkbox) {

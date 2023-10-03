@@ -115,23 +115,24 @@
             width: 100%;
             height: 50px;
         }
+        #userArea #projectSelect{
+            display: block;
+        }
+        #userArea #working{
+            display: none;
+        }
+        #userArea.working #projectSelect{
+            display: none;
+        }
+        #userArea.working #working{
+            display: block;
+        }
+
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand navbar-light fixed-bottom bg-black text-light">
-    <div class="container-fluid">
-            <h5>
-                Pontaj
-            </h5>
-            <div class="d-flex">
-                <button onclick="window.location.reload()" class="btn btn-light me-1"><i class="fa fa-refresh"></i></button>
-                <button onclick="window.close()" class="btn btn-warning"><i class="fa fa-close"></i> </button>
-            </div>
-
-    </div>
-</nav>
-<main style="">
-    <div class="m-0 p-0 container-fluid" style="text-align: center">
+<main class="p-1">
+    <div class="m-0 p-0 container-fluid" style="position: relative; top: 60px; text-align: center">
     <!--    <h4 style="position: absolute; top: 0;left: 0;z-index: 100;width: 100%" class="bg-dark p-2">ClockWorx</h4>-->
         <div id="login" style="z-index: 10; display: inline-block; width: 500px; max-width: 100%">
             <div class="text-center mt-2">
@@ -172,14 +173,14 @@
                                     </tr>
                                 </table>
                             </div>
+                        </div>
                         <div class="input-group mt-2">
                             <button class="btn btn-primary" style="width: 100%;" type="submit" >Login</button>
                         </div>
                     </form>
-                    <div style="
-                    height: 70px;"></div>
+                    <div style="height: 70px;"></div>
 
-                    
+
                     <div id="invalidUserId" style="display: none" class="alert alert-danger">
                         Utilizatorul nu este valid
                     </div>
@@ -190,39 +191,40 @@
             </div>
         </div>
 
-        <div id="pontaj" style="display: none;">
-            <div>
-                <div id="home" class="panel">
-                    <div id="projectSelect" style="display: none" class="unit text-center">
-
-                        <div class="row">
-                            <div class="col emplName">
-
+        <div id="userArea" style="display: none;">
+            <div class="row">
+                <h1 class="col emplName">Salut <span id="userFullName"></span></h1>
+            </div>
+            <div id="home" class="panel">
+                <div id="projectSelect" class="unit text-center">
+                    <h3>Incepe pontajul</h3>
+                    <div class="m-1 p-2">
+                        <div class="projects row mb-2">
+                            <div class="col-4 col-lg-2">
+                                <% bgColor = ("0"+(Math.round(Math.random() * 0x7777)).toString(16) + "0").padStart(6,"0")  %>
+                                <button onclick="confirmStartWork(this)" class="btn" style="font-weight: bold; width: 100%; background-color: #<%=bgColor%>; color: white;  text-shadow: 1px 1px 2px #000000;"
+                                    data-id="<%= id %>"><strong><%= attributes.order_name ? attributes.order_name : "fara nume" %></strong><br>
+                                    <%= attributes.op_name ? attributes.op_name : "fara nume" %></button>
                             </div>
                         </div>
-                        <div class="m-1 p-2">
-                            <div class="projects row mb-2">
-                                <div class="col-4 col-lg-2">
-                                    <% bgColor = ("0"+(Math.round(Math.random() * 0x7777)).toString(16) + "0").padStart(6,"0")  %>
-                                    <button onclick="confirmStartWork(this)" class="btn" style="font-weight: bold; width: 100%; background-color: #<%=bgColor%>; color: white;  text-shadow: 1px 1px 2px #000000;"
-                                        data-id="<%= id %>"><strong><%= attributes.order_name ? attributes.order_name : "fara nume" %></strong><br>
-                                        <%= attributes.op_name ? attributes.op_name : "fara nume" %></button>
-                                </div>
-                            </div>
-                            <hr>
-                            <button class="btn btn-danger" style="width: 150px; height: 50px;" onclick="logout()">Renunta</button>
+                        <hr>
+                        <button class="btn btn-danger" style="width: 150px; height: 50px;" onclick="logout()">Renunta</button>
 
-                        </div>
                     </div>
-                    <div id="working" style="display: none" class="unit text-center">
-                        <h2 class="emplName"></h2>
-                        <h3 class="project"></h3>
+                </div>
+                <div id="working" class="unit text-center card m-3">
+                    <div class="card-body bg-light">
+                        <h5>In lucru de <span class="elapsedTime badge bg-secondary" style="font-family: monospace"></span> ore</h5>
+                        <h1 ><span class="project badge bg-primary"></span></h1>
                         <h4 class="operation"></h4>
-                        <h5>In lucru de <span class="elapsedTime"></span> ore</h5>
+
+                    </div>
+                    <div class="card-footer">
                         <button onclick="stopWork(this);" class="btn btn-danger" id="stopClockingButton">Opreste lucru</button>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -319,6 +321,17 @@
 
 <script src="node_modules/html5-qrcode/html5-qrcode.min.js" type="text/javascript"></script>
 <script src="main.js"></script>
+<nav class="navbar navbar-expand navbar-light fixed-bottom bg-black text-light">
+    <div class="container-fluid">
+        <h5>
+            Pontaj
+        </h5>
+        <div class="d-flex">
+            <button onclick="window.location.reload()" class="btn btn-light me-1"><i class="fa fa-refresh"></i></button>
+            <button onclick="window.close()" class="btn btn-warning"><i class="fa fa-close"></i> </button>
+        </div>
 
+    </div>
+</nav>
 </body>
 </html>

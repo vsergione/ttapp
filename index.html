@@ -4,19 +4,19 @@
 <!--update timetracking set status="f", stop=ADDTIME(start,"05:00:00") where stop is null and TIME_TO_SEC(timediff(CURRENT_TIMESTAMP,start))/3600>10;-->
 <head>
     <meta content="utf-8" http-equiv="encoding">
-    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="Content-Language" content="en">
+    <meta http-equiv="Content-Language" content="ro">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Pontaj</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <meta name="msapplication-tap-highlight" content="no">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css">
 <!--    <link rel="stylesheet" href="node_modules/daterangepicker/daterangepicker.css">-->
-    <link rel="stylesheet" href="vendor/fortawesome/font-awesome/css/all.css">
     <link rel="stylesheet" href="assets/css/sre.css" />
 
     <style>
@@ -118,149 +118,131 @@
     </style>
 </head>
 <body>
+<nav class="navbar navbar-expand navbar-light fixed-bottom bg-black text-light">
+    <div class="container-fluid">
+            <h5>
+                Pontaj
+            </h5>
+            <div class="d-flex">
+                <button onclick="window.location.reload()" class="btn btn-light me-1"><i class="fa fa-refresh"></i></button>
+                <button onclick="window.close()" class="btn btn-warning"><i class="fa fa-close"></i> </button>
+            </div>
 
-<div id="invalidApiUrl" class="overlay" style="display: none">
-    <p class="vertical-center">
-        Invalid API URL. Please configure it using the extension options.
-    </p>
-</div>
-<div id="loader" class="overlay" style="display: none">
-    <div class="vertical-center text-center">
-        <div class="loaderAnimation"></div>
-        Loading...
     </div>
-</div>
-<div id="loadPostion" class="overlay" style="display: none">
-    <div class="vertical-center text-center">
-        <div class="loaderAnimation"></div>
-        Obtine pozitia GPS
-    </div>
-</div>
-<div id="unknownErr" style="display: none" class="overlay">
-    <div class="vertical-center text-center h3">
-        eroare necunoscuta
-    </div>
-</div>
-<div class="m-0 p-0" style="height: 100%;  text-align: center">
-<!--    <h4 style="position: absolute; top: 0;left: 0;z-index: 100;width: 100%" class="bg-dark p-2">ClockWorx</h4>-->
-    <div id="login" style="z-index: 10; display: inline-block; width: 500px;">
-        <div class="text-center mt-2">
-            <div style="text-align: center;">
-                <div style="display: inline-block; width:100%">
-                    <div id="reader" width="100%" style="width: 100%; display: inline-block"></div>
-                </div>
-                
-                <form id="lookupform" onsubmit="event.preventDefault();checkuser(this.uid.value);" class="mt-2">
-                    <div class="input-group">
-                        <input type="number"  name="uid" required class="form-control" placeholder="PIN" title="Introdu codul PIN" oninvalid="this.setCustomValidity('Introdu codul PIN')"
-                        oninput="this.setCustomValidity('')">
-                        <input type="checkbox" id="toggleKeyboadChkbox" class="btn-check" autocomplete="off" onclick="toggleKeyboard(this)">
-                        <label class="btn btn-outline-secondary" for="toggleKeyboadChkbox" >Tastatura</label><br>
+</nav>
+<main style="">
+    <div class="m-0 p-0 container-fluid" style="text-align: center">
+    <!--    <h4 style="position: absolute; top: 0;left: 0;z-index: 100;width: 100%" class="bg-dark p-2">ClockWorx</h4>-->
+        <div id="login" style="z-index: 10; display: inline-block; width: 500px; max-width: 100%">
+            <div class="text-center mt-2">
+                <div style="text-align: center;">
+                    <div style="display: inline-block; width:100%">
+                        <div id="reader" style="width: 100%; display: inline-block"></div>
                     </div>
-                    <div class="text-center">
-                        <div class="d-inline text-center">
-                            <table id="keyboard" style="display: none; width:100%">
-                                <tr>
-                                    <td><button type="button">1</button></td>
-                                    <td><button type="button">2</button></td>
-                                    <td><button type="button">3</button></td>
-                                </tr>
-                                <tr>
-                                    <td><button type="button">4</button></td>
-                                    <td><button type="button">5</button></td>
-                                    <td><button type="button">6</button></td>
-                                </tr>
-                                <tr>
-                                    <td><button type="button">7</button></td>
-                                    <td><button type="button">8</button></td>
-                                    <td><button type="button">9</button></td>
-                                </tr>
-                                <tr>
-                                    <td><button type="button">CLR</button></td>
-                                    <td><button type="button">0</button></td>
-                                    <td><button type="button">DEL</button></td>
-                                </tr>
-                            </table>
+                    
+                    <form id="lookupform" onsubmit="event.preventDefault();checkuser(this.uid.value);" class="mt-2">
+                        <div class="input-group">
+                            <input type="number"  name="uid" required class="form-control" placeholder="PIN" title="Introdu codul PIN" oninvalid="this.setCustomValidity('Introdu codul PIN')"
+                            oninput="this.setCustomValidity('')">
+                            <input type="checkbox" id="toggleKeyboadChkbox" class="btn-check" autocomplete="off" onclick="toggleKeyboard(this)">
+                            <label class="btn btn-outline-secondary" for="toggleKeyboadChkbox" >Tastatura</label><br>
                         </div>
-                    </div>
-                    <div class="input-group mt-2">
-                        <button class="btn btn-primary" style="width: 100%;" type="submit" >Login</button>
-                    </div>
-                </form>
-                <div style="height: 70px;"></div>
+                        <div class="text-center">
+                            <div class="d-inline text-center">
+                                <table id="keyboard" style="display: none; width:100%">
+                                    <tr>
+                                        <td><button type="button">1</button></td>
+                                        <td><button type="button">2</button></td>
+                                        <td><button type="button">3</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button type="button">4</button></td>
+                                        <td><button type="button">5</button></td>
+                                        <td><button type="button">6</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button type="button">7</button></td>
+                                        <td><button type="button">8</button></td>
+                                        <td><button type="button">9</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button type="button">CLR</button></td>
+                                        <td><button type="button">0</button></td>
+                                        <td><button type="button">DEL</button></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        <div class="input-group mt-2">
+                            <button class="btn btn-primary" style="width: 100%;" type="submit" >Login</button>
+                        </div>
+                    </form>
+                    <div style="
+                    height: 70px;"></div>
 
-                
-                <div id="invalidUserId" style="display: none" class="alert alert-danger">
-                    Utilizatorul nu este valid
-                </div>
-                <div id="invalidCode" style="display: none" class="alert alert-danger">
-                    Codul introdus este invalid
+                    
+                    <div id="invalidUserId" style="display: none" class="alert alert-danger">
+                        Utilizatorul nu este valid
+                    </div>
+                    <div id="invalidCode" style="display: none" class="alert alert-danger">
+                        Codul introdus este invalid
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="pontaj" style="display: none;">
-        <div>
-            <div id="home" class="panel">
-                <div id="projectSelect" style="display: none" class="unit text-center">
-                    <h4 class="m-3">
-                        Salut <span id="userFullName">Fname Lname</span>
-                    </h4>
-                    <div class="row">
-                        <div class="col">
-                            <button class="btn btn-danger" style="width: 150px; height: 50px;" onclick="logout()">Renunta</button>
-                        </div>
-                    </div>
-                    <div class="card m-3">
-                        <div class="card-header">Proiecte alocate</div>
-                        <div class="card-body" style="max-height: 80%; overflow-x: scroll">
-                            <span class="badgde rounded-pill text-bg-primary ps-3 pe-3">
-                                Da click pt. a incepe pontajul
+        <div id="pontaj" style="display: none;">
+            <div>
+                <div id="home" class="panel">
+                    <div id="projectSelect" style="display: none" class="unit text-center">
+
+                        <div class="row">
+                            <div class="col emplName">
+
                             </div>
-                            <div class="projects">
-                                <div class="d-inline-block m-3">
-                                    <% bgColor = ("0"+(Math.round(Math.random() * 0x7777)).toString(16) + "0").padStart(6,"0")  %> 
-                                    <button onclick="confirmStartWork(this)" class="btn" style="width: 150px; font-weight: bold; background-color: #<%=bgColor%>; color: white;  text-shadow: 1px 1px 2px #000000;"
+                        </div>
+                        <div class="m-1 p-2">
+                            <div class="projects row mb-2">
+                                <div class="col-4 col-lg-2">
+                                    <% bgColor = ("0"+(Math.round(Math.random() * 0x7777)).toString(16) + "0").padStart(6,"0")  %>
+                                    <button onclick="confirmStartWork(this)" class="btn" style="font-weight: bold; width: 100%; background-color: #<%=bgColor%>; color: white;  text-shadow: 1px 1px 2px #000000;"
                                         data-id="<%= id %>"><strong><%= attributes.order_name ? attributes.order_name : "fara nume" %></strong><br>
                                         <%= attributes.op_name ? attributes.op_name : "fara nume" %></button>
                                 </div>
                             </div>
+                            <hr>
+                            <button class="btn btn-danger" style="width: 150px; height: 50px;" onclick="logout()">Renunta</button>
+
                         </div>
                     </div>
-
-                </div>
-                <div id="working" style="display: none" class="unit text-center">
-                    <h2 class="emplName"></h2>
-                    <h3 class="project"></h3>
-                    <h4 class="operation"></h4>
-                    <h5>In lucru de <span class="elapsedTime"></span> ore</h5>
-                    <button onclick="stopWork(this);" class="btn btn-danger" id="stopClockingButton">Opreste lucru</button>
+                    <div id="working" style="display: none" class="unit text-center">
+                        <h2 class="emplName"></h2>
+                        <h3 class="project"></h3>
+                        <h4 class="operation"></h4>
+                        <h5>In lucru de <span class="elapsedTime"></span> ore</h5>
+                        <button onclick="stopWork(this);" class="btn btn-danger" id="stopClockingButton">Opreste lucru</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+</main>
+<!--<div>-->
+<!--    <div class="container p-2 text-center">-->
+<!--        <div id="stopOk" style="display: none" class="unit text-center">-->
+<!--            <p>-->
+<!--                Pontajul a fost oprit.<br><br>-->
 
-
-<div>
-    <div class="container p-2 text-center">
-        <div id="stopOk" style="display: none" class="unit text-center">
-            <p>
-                Pontajul a fost oprit.<br><br>
-
-                Ai lucrat in total <span class="durationh"></span> ore si <span class="durationm"></span> minute
-            </p>
-        </div>
-        <div id="severError" style="display: none" class="unit text-center">
-            Eroare pe server
-        </div>
-        <div id="serviceUnavail" style="display: none" class="unit text-center">
-            Serviciul este indisponibil
-        </div>
-    </div>
-
+<!--                Ai lucrat in total <span class="durationh"></span> ore si <span class="durationm"></span> minute-->
+<!--            </p>-->
+<!--        </div>-->
+<!--        <div id="severError" style="display: none" class="unit text-center">-->
+<!--            Eroare pe server-->
+<!--        </div>-->
+<!--        <div id="serviceUnavail" style="display: none" class="unit text-center">-->
+<!--            Serviciul este indisponibil-->
+<!--        </div>-->
+<!--    </div>-->
 </div>
 <div class="modal" id="messageModal">
     <div class="modal-dialog">
@@ -294,20 +276,6 @@
         </div>
     </div>
 </div>
-
-<script src="node_modules/jquery/dist/jquery.min.js"></script>
-<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="node_modules/underscore/underscore-min.js"></script>
-<script src="node_modules/moment/min/moment.min.js"></script>
-<!--<script src="node_modules/font-awesome/"-->
-<!--<script src="vendor/fortawesome/font-awesome/js/all.min.js"></script>-->
-<script src="assets/js/apiator.js"></script>
-
-<script src="node_modules/html5-qrcode/html5-qrcode.min.js" type="text/javascript"></script>
-<script src="main.js"></script>
-<script>
-    
-</script>
 <div class="modal" id="startWorkConfirm">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -319,15 +287,38 @@
         </div>
     </div>
 </div>
-<nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Pontaj</a>
-        <div class="d-inline-block">
-            <button onclick="window.location.reload()">Reporneste aplicatia</button>
-            <button onclick="window.close()">Inchide aplicatia</button>
-        </div>
-        
+<div id="invalidApiUrl" class="overlay" style="display: none">
+    <p class="vertical-center">
+        Invalid API URL. Please configure it using the extension options.
+    </p>
+</div>
+<div id="loader" class="overlay" style="display: none">
+    <div class="vertical-center text-center">
+        <div class="loaderAnimation"></div>
+        Loading...
     </div>
-</nav>
+</div>
+<div id="loadPostion" class="overlay" style="display: none">
+    <div class="vertical-center text-center">
+        <div class="loaderAnimation"></div>
+        Obtine pozitia GPS
+    </div>
+</div>
+<div id="unknownErr" style="display: none" class="overlay">
+    <div class="vertical-center text-center h3">
+        eroare necunoscuta
+    </div>
+</div>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="node_modules/underscore/underscore-min.js"></script>
+<script src="node_modules/moment/min/moment.min.js"></script>
+<!--<script src="node_modules/font-awesome/"-->
+<!--<script src="vendor/fortawesome/font-awesome/js/all.min.js"></script>-->
+<script src="assets/js/apiator.js"></script>
+
+<script src="node_modules/html5-qrcode/html5-qrcode.min.js" type="text/javascript"></script>
+<script src="main.js"></script>
+
 </body>
 </html>

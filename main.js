@@ -1,3 +1,7 @@
+// if ('serviceWorker' in navigator) {
+// navigator.serviceWorker.register("assets/js/serviceworker.js");
+// }
+
 const envsFile = "environments.json";
 const activeEnvFile = "active_env.json";
 
@@ -482,12 +486,13 @@ function checkuser(userId) {
             }
 
             let projView = $("#projectSelect");
-            projView.find("#userFullName").html(data.attributes.fname + " " + data.attributes.lname);
+            $("#userFullName").html(data.attributes.fname + " " + data.attributes.lname);
             let instance = projView.fadeIn().find(".projects").apiator({returninstance: true,resourcetype: "collection"});
 
             let projects = data.relationships.alloc_orders;
 
-            instance.loadFromData(projects);
+            instance.loadFromData(projects)
+            window.setTimeout(logout,5000);
             if(projects.length<2) {
                 $("#projectSelect").find("select").hide();
             }
@@ -622,10 +627,22 @@ const config = { fps: 10, qrbox: { width: 300 , height: 300 } };
 
 function startCodeScanner() {
     // If you want to prefer back camera
-    html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+    html5QrCode.start({facingMode: "environment"}, config, qrCodeSuccessCallback)
+        .then((a)=>console.log(a,"Scanner started"))
+        .catch((e)=>{console.log("Cannot start scanner",e)
+        })
+
+
 }
 function stopCodeScanner() {
-    html5QrCode.stop();
+    try {
+        if(html5QrCode.isScanning) {
+            html5QrCode.stop();
+        }
+    }
+    catch (e) {
+        console.log("Cannot stop scanner",e)
+    }
 }
 startCodeScanner();
 
@@ -700,25 +717,25 @@ window.addEventListener('beforeinstallprompt', (event) => {
     // Stash the event so it can be triggered later.
     window.deferredPrompt = event;
     // Remove the 'hidden' class from the install button container.
-    divInstall.classList.toggle('hidden', false);
+    //divInstall.classList.toggle('hidden', false);
 });
 
 
-butInstall.addEventListener('click', async () => {
-    console.log('👍', 'butInstall-clicked');
-    const promptEvent = window.deferredPrompt;
-    if (!promptEvent) {
-        // The deferred prompt isn't available.
-        return;
-    }
-    // Show the install prompt.
-    promptEvent.prompt();
-    // Log the result
-    const result = await promptEvent.userChoice;
-    console.log('👍', 'userChoice', result);
-    // Reset the deferred prompt variable, since
-    // prompt() can only be called once.
-    window.deferredPrompt = null;
-    // Hide the install button.
-    divInstall.classList.toggle('hidden', true);
-});
+// butInstall.addEventListener('click', async () => {
+//     console.log('👍', 'butInstall-clicked');
+//     const promptEvent = window.deferredPrompt;
+//     if (!promptEvent) {
+//         // The deferred prompt isn't available.
+//         return;
+//     }
+//     // Show the install prompt.
+//     promptEvent.prompt();
+//     // Log the result
+//     const result = await promptEvent.userChoice;
+//     console.log('👍', 'userChoice', result);
+//     // Reset the deferred prompt variable, since
+//     // prompt() can only be called once.
+//     window.deferredPrompt = null;
+//     // Hide the install button.
+//     divInstall.classList.toggle('hidden', true);
+// });

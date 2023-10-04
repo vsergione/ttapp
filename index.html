@@ -220,7 +220,7 @@
 
                     </div>
                     <div class="card-footer">
-                        <button onclick="stopWork(this);" class="btn btn-danger" id="stopClockingButton">Opreste lucru</button>
+                        <button onclick="confirmStopWork(this);" class="btn btn-danger" id="stopClockingButton">Opreste lucru</button>
                     </div>
                 </div>
             </div>
@@ -289,6 +289,18 @@
         </div>
     </div>
 </div>
+<div class="modal" id="stopWorkConfirm">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">Esti sigur ca vrei sa opresti lucrul?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$(this).parents('.modal').modal('hide')">NU</button>
+                <button type="button" name="confirmButton" class="btn btn-primary">DA</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="invalidApiUrl" class="overlay" style="display: none">
     <p class="vertical-center">
         Invalid API URL. Please configure it using the extension options.

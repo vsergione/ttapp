@@ -321,6 +321,16 @@ function confirmStartWork(button) {
     modal.find("[name=confirmButton]").off("click").on("click",()=>{modal.modal("hide");startWork(button);});
 }
 
+function confirmStopWork(button) {
+
+    let instance = $(button).data().instance;
+    let modal = $("#stopWorkConfirm").modal("show");
+    //modal.find("[name=proiectId]").text(instance.attributes.order_name+" / " + instance.attributes.op_name);
+    modal.find("[name=confirmButton]").off("click").on("click",()=>{modal.modal("hide");stopWork(button);});
+}
+
+
+
 function startWork(button) {
     console.log("Start work");
     if(navigator)
